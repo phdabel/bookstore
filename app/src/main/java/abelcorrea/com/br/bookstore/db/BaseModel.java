@@ -15,7 +15,7 @@ public abstract class BaseModel implements Serializable {
 
     private static final String LOG_TAG = BaseModel.class.getSimpleName();
 
-    public int id;
+    public long id;
 
     /**
      * Returns a JSON Object of the model.
@@ -27,6 +27,7 @@ public abstract class BaseModel implements Serializable {
         JSONObject result = new JSONObject();
 
         for(Field field : getClass().getDeclaredFields()){
+            field.setAccessible(true);
             try {
                 Object obj = field.get(this);
 

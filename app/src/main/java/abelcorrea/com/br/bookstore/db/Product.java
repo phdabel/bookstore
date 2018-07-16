@@ -27,7 +27,7 @@ public class Product extends BaseModel implements IActiveRecord {
     public String supplierName;
     public String supplierPhone;
 
-    final String[] projection = {
+    final String[] completeProjection = {
             BookStoreContract.ProductEntry._ID,
             BookStoreContract.ProductEntry.COLUMN_PRODUCT_NAME,
             BookStoreContract.ProductEntry.COLUMN_PRODUCT_PRICE,
@@ -51,8 +51,8 @@ public class Product extends BaseModel implements IActiveRecord {
         values.put(BookStoreContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, this.quantity);
         values.put(BookStoreContract.ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, this.supplierName);
         values.put(BookStoreContract.ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, this.supplierPhone);
-
-        return db.insert(BookStoreContract.ProductEntry.TABLE_NAME, null, values);
+        this.id = db.insert(BookStoreContract.ProductEntry.TABLE_NAME, null, values);
+        return this.id;
     }
 
     @Override
@@ -66,51 +66,41 @@ public class Product extends BaseModel implements IActiveRecord {
     }
 
     @Override
-    public BaseModel findOne(String selection, String[] selectionArgs) {
-        ProductModel result = null;
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        Cursor cursor = db.query(
-                BookStoreContract.ProductEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null);
-
-        try{
-
-            int idColumnIndex = cursor.getColumnIndex(BookStoreContract.ProductEntry._ID);
-            int nameColumnIndex = cursor.getColumnIndex(BookStoreContract.ProductEntry.COLUMN_PRODUCT_NAME);
-            int priceColumnIndex = cursor.getColumnIndex(BookStoreContract.ProductEntry.COLUMN_PRODUCT_PRICE);
-            int quantityColumnIndex = cursor.getColumnIndex(BookStoreContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
-            int supplierNameColumnIndex = cursor.getColumnIndex(BookStoreContract.ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME);
-            int supplierPhoneColumnIndex = cursor.getColumnIndex(BookStoreContract.ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
-
-            if(cursor.getCount() > 1) throw new Exception(context.getString(R.string.exception_message_find_one));
-            cursor.moveToNext();
-            result = new ProductModel(
-                    cursor.getLong(idColumnIndex),
-                    cursor.getString(nameColumnIndex),
-                    cursor.getDouble(priceColumnIndex),
-                    cursor.getInt(quantityColumnIndex),
-                    cursor.getString(supplierNameColumnIndex),
-                    cursor.getString(supplierPhoneColumnIndex));
-
-        } catch(Exception ex) {
-            Log.e(LOG_TAG, ex.getMessage());
-            ex.printStackTrace();
-        } finally {
-            cursor.close();
-        }
-
-        return result;
+    public List<ProductModel> findAll() {
+        return this.find(completeProjection, null, null);
     }
 
     @Override
-    public List<ProductModel> findAll() {
+    public ProductModel findOne(String[] projection, String selection, String[] selectionArgs) {
+        List<ProductModel> results = find(projection, selection, selectionArgs);
+        if(results.size() > 1) try {
+            throw new Exception(context.getString(R.string.exception_message_find_one));
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return results.get(0);
+    }
+
+    @Override
+    public ProductModel findOne(String selection, String[] selectionArgs) {
+        List<ProductModel> results = find(completeProjection, selection, selectionArgs);
+        if(results.size() > 1) try {
+            throw new Exception(context.getString(R.string.exception_message_find_one));
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+            e.printStackTrace();
+        }
+        return results.get(0);
+    }
+
+    @Override
+    public List<ProductModel> find(String selection, String[] selectionArgs){
+        return this.find(completeProjection, selection, selectionArgs);
+    }
+
+    @Override
+    public List<ProductModel> find(String[] projection, String selection, String[] selectionArgs) {
 
         List<ProductModel> results = new ArrayList<ProductModel>();
 
@@ -119,8 +109,8 @@ public class Product extends BaseModel implements IActiveRecord {
         Cursor cursor = db.query(
                 BookStoreContract.ProductEntry.TABLE_NAME,
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 null);

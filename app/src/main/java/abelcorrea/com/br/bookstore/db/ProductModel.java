@@ -2,7 +2,6 @@ package abelcorrea.com.br.bookstore.db;
 
 public class ProductModel extends BaseModel {
 
-    public long id;
     public String name;
     public Double price;
     public Integer quantity;

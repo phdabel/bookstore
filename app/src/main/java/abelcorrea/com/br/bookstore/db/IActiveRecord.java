@@ -11,8 +11,14 @@ public interface IActiveRecord {
 
     boolean delete();
 
-    BaseModel findOne(String selection, String[] selectionArgs);
+    List<? extends BaseModel> find(String selection, String[] selecionArgs);
+
+    List<? extends BaseModel> find(String[] projection, String selection, String[] selectionArgs);
 
     List<? extends BaseModel> findAll();
+
+    BaseModel findOne(String[] projection, String selection, String[] selectionArgs);
+
+    BaseModel findOne(String selection, String[] selectionArgs);
 
 }
