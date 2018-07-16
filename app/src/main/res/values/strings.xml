@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Book Store</string>
+    <string name="exception_message_find_one">The method findOne is returning more than one record. Check the selection and selectionArgs parameters.</string>
 </resources>
