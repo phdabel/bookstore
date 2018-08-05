@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.EditorFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/activity_margin">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="@string/product_text_view"
+                style="@style/ProductStyle" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:paddingLeft="4dp"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/name_edit_text"
+                    android:hint="@string/name_edit_text"
+                    android:inputType="textCapWords"
+                    style="@style/EditorFieldStyle" />
+
+                <EditText
+                    android:id="@+id/price_edit_text"
+                    android:hint="@string/price_edit_text"
+                    android:inputType="numberDecimal"
+                    style="@style/EditorFieldStyle" />
+
+                <EditText
+                    android:id="@+id/quantity_edit_text"
+                    android:hint="@string/quantity_edit_text"
+                    android:inputType="number"
+                    style="@style/EditorFieldStyle" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="@string/supplier_text_view"
+                style="@style/ProductStyle" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:paddingLeft="4dp"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/supplier_name_edit_text"
+                    android:hint="@string/supplier_name_edit_text"
+                    android:inputType="textCapWords"
+                    style="@style/EditorFieldStyle" />
+
+                <EditText
+                    android:id="@+id/supplier_phone_edit_text"
+                    android:hint="@string/supplier_phone_edit_text"
+                    android:inputType="phone"
+                    style="@style/EditorFieldStyle" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</FrameLayout>

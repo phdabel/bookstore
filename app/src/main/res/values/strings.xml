@@ -1,4 +1,29 @@
 <resources>
     <string name="app_name">Book Store</string>
     <string name="exception_message_find_one">The method findOne is returning more than one record. Check the selection and selectionArgs parameters.</string>
+    <string name="empty_view_title_text">No itens in the inventory.</string>
+    <string name="sell_button">Sell</string>
+    <string name="get_type_string_1">Unknown URI</string>
+    <string name="get_type_string_2">with match</string>
+    <string name="query_unknown_uri">Cannot query unknown URI</string>
+    <string name="inventory_fragment">Inventory</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="name_edit_text">Name</string>
+    <string name="price_edit_view">Price</string>
+    <string name="quantity_edit_view">Quantity</string>
+    <string name="supplier_name_edit_view">Supplier Name</string>
+    <string name="supplier_phone_edit_view">Supplier Phone</string>
+    <string name="product_text_view">Product</string>
+    <string name="price_edit_text">Price</string>
+    <string name="quantity_edit_text">Quantity</string>
+    <string name="supplier_text_view">Supplier</string>
+    <string name="supplier_name_edit_text">Name</string>
+    <string name="supplier_phone_edit_text">Phone</string>
+    <string name="add_item_label">Add item</string>
+    <string name="edit_item_label">Edit item</string>
+    <string name="error_saving_label">Error saving item</string>
+    <string name="saved_item_label">Item saved</string>
+    <string name="error_updating_label">Error updating item</string>
+    <string name="item_updated_label">Item updated</string>
 </resources>
