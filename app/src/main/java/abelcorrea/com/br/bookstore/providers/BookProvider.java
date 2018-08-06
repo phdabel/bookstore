@@ -10,11 +10,13 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import abelcorrea.com.br.bookstore.R;
 import abelcorrea.com.br.bookstore.data.BookStoreContract;
 import abelcorrea.com.br.bookstore.data.BookStoreContract.ProductEntry;
 import abelcorrea.com.br.bookstore.data.ProductStoreDbHelper;
+import abelcorrea.com.br.bookstore.data.ValidationException;
 
 public class BookProvider extends ContentProvider {
 
@@ -71,7 +73,7 @@ public class BookProvider extends ContentProvider {
                         sortOrder);
                 break;
             default:
-                throw new IllegalArgumentException(getContext().getString(R.string.query_unknown_uri) + uri);
+                throw new IllegalArgumentException(getContext().getString(R.string.illegal_argument_query_unknown_uri) + uri);
         }
 
         return cursor;
@@ -94,8 +96,27 @@ public class BookProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+
+        SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int delete = -1;
+
+        switch(match){
+            case BOOKS:
+                delete = db.delete(ProductEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case BOOK_ID:
+                selection = ProductEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                delete = db.delete(ProductEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+        }
+
+        if(delete != 0) getContext().getContentResolver().notifyChange(uri, null);
+        return delete;
     }
 
     @Override
@@ -126,24 +147,28 @@ public class BookProvider extends ContentProvider {
             case BOOK_ID:
                 return ProductEntry.CONTENT_ITEM_TYPE;
             default:
-                throw new IllegalStateException(getContext().getString(R.string.get_type_string_1)
-                        + uri
-                        + getContext().getString(R.string.get_type_string_2)
-                        + match);
+                throw new IllegalStateException(
+                        getContext().getString(R.string.illegal_state_get_type)
+                                .replace("{uri}",uri.toString())
+                                .replace("{match}", String.valueOf(match)));
         }
     }
 
     private Uri insertItem(Uri uri, ContentValues contentValues){
-
-        validate(contentValues);
-        SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-        long id = db.insert(ProductEntry.TABLE_NAME, null, contentValues);
-        if(id == -1){
-            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+        try{
+            validate(contentValues);
+            SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+            long id = db.insert(ProductEntry.TABLE_NAME, null, contentValues);
+            if(id == -1){
+                Log.e(LOG_TAG, "Failed to insert row for " + uri);
+                return null;
+            }
+            getContext().getContentResolver().notifyChange(uri, null);
+            return ContentUris.withAppendedId(uri, id);
+        }catch(ValidationException ex){
+            Toast.makeText(getContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             return null;
         }
-        getContext().getContentResolver().notifyChange(uri, null);
-        return ContentUris.withAppendedId(uri, id);
     }
 
     private int updateItem(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs){
@@ -158,9 +183,9 @@ public class BookProvider extends ContentProvider {
         Double itemPrice = values.getAsDouble(ProductEntry.COLUMN_PRODUCT_PRICE);
         Integer itemQuantity = values.getAsInteger(ProductEntry.COLUMN_PRODUCT_QUANTITY);
 
-        if(itemName == null || itemName.isEmpty()) throw new IllegalArgumentException("The name of the product must be informed.");
-        if(itemPrice == null || itemPrice.doubleValue() < 0) throw new IllegalArgumentException("The price should be a positive value.");
-        if(itemQuantity == null || itemQuantity.intValue() < 0) throw new IllegalArgumentException("The quantity can not be empty or a negative value.");
+        if(itemName == null || itemName.isEmpty()) throw new ValidationException(getContext().getString(R.string.name_field_validation));
+        if(itemPrice == null || itemPrice.doubleValue() < 0) throw new ValidationException(getContext().getString(R.string.price_field_validation));
+        if(itemQuantity == null || itemQuantity.intValue() < 0) throw new ValidationException(getContext().getString(R.string.quantity_field_validation));
 
     }
 }

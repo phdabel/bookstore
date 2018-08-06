@@ -1,29 +1,59 @@
 <resources>
+
+    <!-- General -->
     <string name="app_name">Book Store</string>
-    <string name="exception_message_find_one">The method findOne is returning more than one record. Check the selection and selectionArgs parameters.</string>
-    <string name="empty_view_title_text">No itens in the inventory.</string>
-    <string name="sell_button">Sell</string>
-    <string name="get_type_string_1">Unknown URI</string>
-    <string name="get_type_string_2">with match</string>
-    <string name="query_unknown_uri">Cannot query unknown URI</string>
+    <string name="empty_view_title_text">No books in your inventory.</string>
     <string name="inventory_fragment">Inventory</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
+    <!-- form sections -->
+    <string name="book_section_label">Book</string>
+    <string name="supplier_section_label">Supplier</string>
+
+    <!-- edit hints -->
     <string name="name_edit_text">Name</string>
-    <string name="price_edit_view">Price</string>
-    <string name="quantity_edit_view">Quantity</string>
-    <string name="supplier_name_edit_view">Supplier Name</string>
-    <string name="supplier_phone_edit_view">Supplier Phone</string>
-    <string name="product_text_view">Product</string>
+    <string name="genre_edit_text">Genre</string>
     <string name="price_edit_text">Price</string>
     <string name="quantity_edit_text">Quantity</string>
-    <string name="supplier_text_view">Supplier</string>
-    <string name="supplier_name_edit_text">Name</string>
-    <string name="supplier_phone_edit_text">Phone</string>
-    <string name="add_item_label">Add item</string>
-    <string name="edit_item_label">Edit item</string>
-    <string name="error_saving_label">Error saving item</string>
-    <string name="saved_item_label">Item saved</string>
-    <string name="error_updating_label">Error updating item</string>
-    <string name="item_updated_label">Item updated</string>
+    <string name="phone_edit_text">Phone</string>
+
+
+    <!-- title -->
+    <string name="add_book_title">Add book</string>
+    <string name="edit_book_title">Edit item</string>
+
+    <!-- actions -->
+    <string name="sell_action">Sell</string>
+    <string name="delete_action">Delete</string>
+    <string name="edit_action">Edit</string>
+    <string name="save_action">Save</string>
+    <string name="cancel_action">Cancel</string>
+    <string name="discard_action">Discard</string>
+    <string name="keep_edit_action">Keep Editing</string>
+
+    <!-- toasty messages -->
+    <string name="error_saving_toasty">Error saving book</string>
+    <string name="saved_book_toasty">Book saved</string>
+    <string name="error_updating_toasty">Error updating book</string>
+    <string name="book_updated_toasty">Book updated</string>
+    <string name="book_delete_failed_toasty">Error with deleting book</string>
+    <string name="book_deleted_successfully">Book deleted</string>
+    <string name="delete_all_menu">Delete all books</string>
+    <string name="delete_all_entries_dialog">Delete all entries??</string>
+    <string name="mass_delete_success"> entries deleted</string>
+
+    <!-- exceptions message -->
+    <string name="illegal_state_get_type">Unknown URI {uri} with match {match}</string>
+    <string name="illegal_argument_query_unknown_uri">Cannot query unknown URI</string>
+
+    <!-- validation messages -->
+    <string name="name_field_validation">The name of the book must be informed.</string>
+    <string name="price_field_validation">The price should be a positive value.</string>
+    <string name="quantity_field_validation">The quantity can not be empty or a negative value.</string>
+
+    <!-- alert messages and labels -->
+    <string name="delete_book__message_dialog">Delete this book entry?</string>
+    <string name="discard_message_dialog">Discard your changes and quit editing?</string>
+
+
+
 </resources>

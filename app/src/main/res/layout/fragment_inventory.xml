@@ -9,34 +9,14 @@
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content" />
 
-    <RelativeLayout
-        android:id="@+id/empty_view"
+    <fragment
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
-
-        <!-- @todo remove this code or get an image  -->
-        <!-- ImageView
-            android:id="@+id/empty_shelter_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_empty_shelter"/ -->
-
-        <TextView
-            android:id="@+id/empty_title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:fontFamily="sans-serif-medium"
-            android:paddingTop="16dp"
-            android:text="@string/empty_view_title_text"
-            android:textAppearance="?android:textAppearanceMedium"
-            tools:text="No Itens in the inventory."/>
-
-    </RelativeLayout>
+        android:layout_centerInParent="true"
+        android:id="@+id/empty_view"
+        android:name="abelcorrea.com.br.bookstore.fragments.EmptyViewFragment"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_fab"

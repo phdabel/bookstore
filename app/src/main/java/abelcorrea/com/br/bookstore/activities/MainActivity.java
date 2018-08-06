@@ -1,11 +1,14 @@
 package abelcorrea.com.br.bookstore.activities;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import abelcorrea.com.br.bookstore.R;
 import abelcorrea.com.br.bookstore.fragments.InventoryFragment;
-import abelcorrea.com.br.bookstore.fragments.OnBackPressedListener;
+import abelcorrea.com.br.bookstore.listeners.OnBackPressedListener;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +34,21 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.frame_layout, inventory).commit();
 
+    }
+
+    public void menuItemsColor(Menu menu, int color){
+        int count = menu.size();
+        for(int i = 0; i < count; i++){
+            menuIconColor(menu.getItem(i), color);
+        }
+    }
+
+    public void menuIconColor(MenuItem menuItem, int color){
+        Drawable drawable = menuItem.getIcon();
+        if(drawable != null){
+            drawable.mutate();
+            drawable.setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+        }
     }
 
     @Override

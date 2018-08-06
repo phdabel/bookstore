@@ -12,10 +12,10 @@ import android.widget.TextView;
 import abelcorrea.com.br.bookstore.R;
 import abelcorrea.com.br.bookstore.data.BookStoreContract.ProductEntry;
 
-public class ProductCursorAdapter extends CursorAdapter {
+public class BookCursorAdapter extends CursorAdapter {
 
 
-    public ProductCursorAdapter(Context context, Cursor c){
+    public BookCursorAdapter(Context context, Cursor c){
         super(context, c, FLAG_REGISTER_CONTENT_OBSERVER);
     }
 
@@ -27,9 +27,9 @@ public class ProductCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        TextView nameTextView = view.findViewById(R.id.name);
-        TextView priceTextView = view.findViewById(R.id.price);
-        TextView quantityTextView = view.findViewById(R.id.quantity);
+        TextView nameTextView = view.findViewById(R.id.name_list_item);
+        TextView priceTextView = view.findViewById(R.id.price_list_item);
+        TextView quantityTextView = view.findViewById(R.id.quantity_list_item);
 
         Button sellButton = view.findViewById(R.id.sell);
 

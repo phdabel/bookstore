@@ -1,22 +1,28 @@
 package abelcorrea.com.br.bookstore.fragments;
 
 
+import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -25,6 +31,7 @@ import android.widget.Toast;
 import abelcorrea.com.br.bookstore.R;
 import abelcorrea.com.br.bookstore.activities.MainActivity;
 import abelcorrea.com.br.bookstore.data.BookStoreContract.ProductEntry;
+import abelcorrea.com.br.bookstore.listeners.OnBackPressedListener;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -34,27 +41,59 @@ import butterknife.ButterKnife;
 public class EditorFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
-    @BindView(R.id.name_edit_text) EditText nameEditText;
-    @BindView(R.id.price_edit_text) EditText priceEditText;
-    @BindView(R.id.quantity_edit_text) EditText quantityEditText;
-    @BindView(R.id.supplier_name_edit_text) EditText supplierNameEditText;
-    @BindView(R.id.supplier_phone_edit_text) EditText supplierPhoneEditText;
+    @BindView(R.id.name_edit_text)
+    EditText nameEditText;
+    @BindView(R.id.genre_edit_text)
+    EditText genreEditText;
+    @BindView(R.id.price_edit_text)
+    EditText priceEditText;
+    @BindView(R.id.quantity_edit_text)
+    EditText quantityEditText;
+    @BindView(R.id.supplier_name_edit_text)
+    EditText supplierNameEditText;
+    @BindView(R.id.supplier_phone_edit_text)
+    EditText supplierPhoneEditText;
 
     private final int EXISTING_ITEM_LOADER = 0;
 
-    private boolean mItemHasChanged = false;
+    protected boolean mItemHasChanged = false;
 
     private Uri currentUri;
 
+    private boolean viewMode = true;
+
     public EditorFragment() {
-        // Required empty public constructor
+
     }
 
+
+
+    private final View.OnTouchListener listener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motioEvent) {
+            mItemHasChanged = true;
+            return false;
+        }
+    };
+
+    private DialogInterface.OnClickListener discardButon = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            mItemHasChanged = false;
+            getActivity().getIntent().setData(null);
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frame_layout, new InventoryFragment())
+                    .commit();
+        }
+    };
+
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState != null) savedInstanceState.getBoolean("viewMode", true);
         setHasOptionsMenu(true);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,36 +103,72 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         currentUri = intent.getData();
 
         View view = inflater.inflate(R.layout.fragment_editor, container, false);
-        ButterKnife.bind(this,view);
 
-        if(currentUri == null){
-            getActivity().setTitle(getString(R.string.add_item_label));
-            getActivity().invalidateOptionsMenu();
+        EditText nameEditText = view.findViewById(R.id.name_edit_text);
+        EditText genreEditText = view.findViewById(R.id.genre_edit_text);
+        EditText priceEditText = view.findViewById(R.id.price_edit_text);
+        EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
+        EditText supplierEditText = view.findViewById(R.id.supplier_name_edit_text);
+        EditText phoneEditText = view.findViewById(R.id.supplier_phone_edit_text);
+
+        nameEditText.setOnTouchListener(listener);
+        genreEditText.setOnTouchListener(listener);
+        priceEditText.setOnTouchListener(listener);
+        quantityEditText.setOnTouchListener(listener);
+        supplierEditText.setOnTouchListener(listener);
+        phoneEditText.setOnTouchListener(listener);
+
+        if(viewMode){
+            nameEditText.setEnabled(false);
+            genreEditText.setEnabled(false);
+            priceEditText.setEnabled(false);
+            quantityEditText.setEnabled(false);
+            supplierEditText.setEnabled(false);
+            phoneEditText.setEnabled(false);
         }else{
-            getActivity().setTitle(getString(R.string.edit_item_label));
+            nameEditText.setEnabled(true);
+            genreEditText.setEnabled(true);
+            priceEditText.setEnabled(true);
+            quantityEditText.setEnabled(true);
+            supplierEditText.setEnabled(true);
+            phoneEditText.setEnabled(true);
+        }
+
+        ButterKnife.bind(this, view);
+
+
+        if (currentUri == null) {
+            getActivity().setTitle(getString(R.string.add_book_title));
+            getActivity().invalidateOptionsMenu();
+        } else {
+            getActivity().setTitle(getString(R.string.edit_book_title));
             LoaderManager loaderManager = getLoaderManager();
             loaderManager.initLoader(EXISTING_ITEM_LOADER, null, this);
         }
 
-        ((MainActivity)getActivity()).setOnBackPressedListener(new OnBackPressedListener(){
+        ((MainActivity) getActivity()).setOnBackPressedListener(new OnBackPressedListener() {
             @Override
-            public void doBack(){
-                currentUri = null;
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.frame_layout, new InventoryFragment())
-                        .commit();
+            public void doBack() {
+                if (mItemHasChanged) showUnsavedChangesDialog(discardButon);
+                else {
+                    getActivity().getIntent().setData(null);
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.frame_layout, new InventoryFragment())
+                            .commit();
+                }
             }
         });
 
         return view;
     }
 
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_editor, menu);
-        if(currentUri == null){
+        if (currentUri == null) {
             MenuItem menuItem = menu.findItem(R.id.action_delete);
             menuItem.setVisible(false);
         }
+        ((MainActivity) getContext()).menuItemsColor(menu, Color.WHITE);
     }
 
     @NonNull
@@ -103,6 +178,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         String[] projection = {
                 ProductEntry._ID,
                 ProductEntry.COLUMN_PRODUCT_NAME,
+                ProductEntry.COLUMN_PRODUCT_GENRE,
                 ProductEntry.COLUMN_PRODUCT_PRICE,
                 ProductEntry.COLUMN_PRODUCT_QUANTITY,
                 ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME,
@@ -120,11 +196,12 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 
-        if(cursor == null || cursor.getCount() < 1) return;
+        if (cursor == null || cursor.getCount() < 1) return;
 
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
 
             int nameIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME);
+            int genreIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_GENRE);
             int priceIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
             int quantityIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
             int supplierNameIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME);
@@ -132,12 +209,14 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
 
             String name = cursor.getString(nameIndex);
+            String genre = cursor.getString(genreIndex);
             Double price = cursor.getDouble(priceIndex);
             Integer quantity = cursor.getInt(quantityIndex);
             String supplierName = cursor.getString(supplierNameIndex);
             String supplierPhone = cursor.getString(supplierPhoneIndex);
 
             nameEditText.setText(name);
+            genreEditText.setText(genre);
             priceEditText.setText(String.valueOf(price));
             quantityEditText.setText(String.valueOf(quantity));
             supplierNameEditText.setText(supplierName);
@@ -150,6 +229,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         nameEditText.setText(null);
+        genreEditText.setText(null);
         priceEditText.setText(null);
         quantityEditText.setText(null);
         supplierNameEditText.setText(null);
@@ -158,7 +238,16 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
+            case R.id.action_edit:
+                Bundle bundle = new Bundle();
+                bundle.putBoolean("viewMode", false);
+                EditorFragment fragment = new EditorFragment();
+                fragment.setArguments(bundle);
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.frame_layout, fragment)
+                        .commit();
+                return true;
             case R.id.action_save:
                 saveItem();
                 getActivity().getIntent().setData(null);
@@ -166,48 +255,109 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
                         replace(R.id.frame_layout, new InventoryFragment()).commit();
                 return true;
             case R.id.action_delete:
+                showDeleteConfirmationDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void saveItem(){
+    private void saveItem() {
 
         String nameString = nameEditText.getText().toString().trim();
+        String genreString = genreEditText.getText().toString().trim();
         String priceString = priceEditText.getText().toString().trim();
         String quantityString = quantityEditText.getText().toString().trim();
         String supplierNameString = supplierNameEditText.getText().toString().trim();
         String supplierPhoneString = supplierPhoneEditText.getText().toString().trim();
 
-        if(currentUri == null && TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
+        if (currentUri == null && TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
                 TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierNameString) &&
                 TextUtils.isEmpty(supplierPhoneString)) return;
 
         ContentValues values = new ContentValues();
         values.put(ProductEntry.COLUMN_PRODUCT_NAME, nameString);
+        values.put(ProductEntry.COLUMN_PRODUCT_GENRE, genreString);
         values.put(ProductEntry.COLUMN_PRODUCT_PRICE, Double.valueOf(priceString));
         values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, Integer.valueOf(quantityString));
         values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, supplierNameString);
         values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, supplierPhoneString);
 
-        if(currentUri == null){
+        if (currentUri == null) {
             Uri newUri = getContext().getContentResolver().insert(ProductEntry.CONTENT_URI, values);
 
-            if(newUri == null){
-                Toast.makeText(getContext(), R.string.error_saving_label, Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(getContext(), R.string.saved_item_label, Toast.LENGTH_SHORT).show();
+            if (newUri == null) {
+                Toast.makeText(getContext(), R.string.error_saving_toasty, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), R.string.saved_book_toasty, Toast.LENGTH_SHORT).show();
             }
 
-        }else{
+        } else {
             int updatedRows = getContext().getContentResolver().update(currentUri, values, null, null);
 
-            if(updatedRows == 0){
-                Toast.makeText(getContext(), R.string.error_updating_label, Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(getContext(), R.string.item_updated_label, Toast.LENGTH_SHORT).show();
+            if (updatedRows == 0) {
+                Toast.makeText(getContext(), R.string.error_updating_toasty, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), R.string.book_updated_toasty, Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void deleteItem() {
+
+        if (currentUri == null) return;
+        int deletedRows = getActivity().getContentResolver().delete(currentUri, null, null);
+        if (deletedRows == -1) {
+            Toast.makeText(getContext(), R.string.book_delete_failed_toasty, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), R.string.book_deleted_successfully, Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMessage(R.string.discard_message_dialog);
+        builder.setPositiveButton(R.string.discard_action, discardButtonClickListener);
+        builder.setNegativeButton(R.string.keep_edit_action, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Keep editing" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        builder.setMessage(R.string.delete_book__message_dialog);
+        builder.setPositiveButton(R.string.delete_action, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                deleteItem();
+                getActivity().getIntent().setData(null);
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.frame_layout, new InventoryFragment())
+                        .commit();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (dialog != null) dialog.dismiss();
+
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
     }
 
 }

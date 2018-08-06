@@ -1,8 +1,9 @@
 package abelcorrea.com.br.bookstore.fragments;
 
 import android.content.ContentUris;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,30 +13,44 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import abelcorrea.com.br.bookstore.R;
-import abelcorrea.com.br.bookstore.adapters.ProductCursorAdapter;
+import abelcorrea.com.br.bookstore.activities.MainActivity;
+import abelcorrea.com.br.bookstore.adapters.BookCursorAdapter;
 import abelcorrea.com.br.bookstore.data.BookStoreContract.ProductEntry;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class InventoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private ProductCursorAdapter adapter;
+    private BookCursorAdapter adapter;
 
     private static final int PRODUCT_LOADER = 0;
 
-    @BindView(R.id.list) ListView products;
-    @BindView(R.id.add_fab) FloatingActionButton add_btn;
+    @BindView(R.id.list)
+    ListView products;
+    @BindView(R.id.add_fab)
+    FloatingActionButton add_btn;
     @BindView(R.id.empty_view) View emptyView;
 
-    public InventoryFragment(){
+    public InventoryFragment() {
 
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -43,10 +58,10 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_inventory, container, false);
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
         products.setEmptyView(emptyView);
-
-        adapter = new ProductCursorAdapter(getContext(),null);
+        getActivity().setTitle(getString(R.string.inventory_fragment));
+        adapter = new BookCursorAdapter(getContext(), null);
         products.setAdapter(adapter);
 
         products.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -64,9 +79,9 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
             }
         });
 
-        add_btn.setOnClickListener(new View.OnClickListener(){
+        add_btn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view){
+            public void onClick(View view) {
 
                 // pass extras of the intent
                 EditorFragment editor = new EditorFragment();
@@ -111,6 +126,57 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         adapter.swapCursor(null);
     }
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_inventory, menu);
+        ((MainActivity)getActivity()).menuItemsColor(menu, Color.WHITE);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.action_delete_all_entries:
+                showDeleteAllConfirmationDialog();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showDeleteAllConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+        builder.setMessage(R.string.delete_all_entries_dialog);
+        builder.setPositiveButton(R.string.delete_action, new DialogInterface.OnClickListener(){
+
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                deleteAllItems();
+                getLoaderManager().restartLoader(PRODUCT_LOADER, null, InventoryFragment.this);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(dialog != null) dialog.dismiss();
+
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+    }
+
+    public int deleteAllItems(){
+        int deletedRows = getContext().getContentResolver().delete(ProductEntry.CONTENT_URI, null, null);
+        if(deletedRows == -1){
+            Toast.makeText(getContext(), getString(R.string.book_delete_failed_toasty), Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(getContext(), String.valueOf(deletedRows) + getString(R.string.mass_delete_success), Toast.LENGTH_SHORT).show();
+        }
+        return deletedRows;
+    }
+
 }
 
 

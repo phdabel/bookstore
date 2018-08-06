@@ -17,8 +17,8 @@
             android:orientation="horizontal">
 
             <TextView
-                android:text="@string/product_text_view"
-                style="@style/ProductStyle" />
+                android:text="@string/book_section_label"
+                style="@style/ItemStyle" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -31,6 +31,13 @@
                     android:id="@+id/name_edit_text"
                     android:hint="@string/name_edit_text"
                     android:inputType="textCapWords"
+                    style="@style/EditorFieldStyle" />
+
+                <EditText
+                    android:id="@+id/genre_edit_text"
+                    android:hint="@string/genre_edit_text"
+                    android:inputType="textCapWords"
+                    android:lines="5"
                     style="@style/EditorFieldStyle" />
 
                 <EditText
@@ -55,8 +62,8 @@
             android:orientation="horizontal">
 
             <TextView
-                android:text="@string/supplier_text_view"
-                style="@style/ProductStyle" />
+                android:text="@string/supplier_section_label"
+                style="@style/ItemStyle" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -67,13 +74,13 @@
 
                 <EditText
                     android:id="@+id/supplier_name_edit_text"
-                    android:hint="@string/supplier_name_edit_text"
+                    android:hint="@string/name_edit_text"
                     android:inputType="textCapWords"
                     style="@style/EditorFieldStyle" />
 
                 <EditText
                     android:id="@+id/supplier_phone_edit_text"
-                    android:hint="@string/supplier_phone_edit_text"
+                    android:hint="@string/phone_edit_text"
                     android:inputType="phone"
                     style="@style/EditorFieldStyle" />
 
