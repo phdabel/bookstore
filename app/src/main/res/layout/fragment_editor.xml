@@ -17,40 +17,67 @@
             android:orientation="horizontal">
 
             <TextView
-                android:text="@string/book_section_label"
-                style="@style/ItemStyle" />
+                style="@style/ItemStyle"
+                android:text="@string/book_section_label" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:paddingLeft="4dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingLeft="4dp">
+
+                <TextView
+                    android:id="@+id/name_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/name_edit_text"
+                    android:visibility="visible" />
 
                 <EditText
                     android:id="@+id/name_edit_text"
-                    android:hint="@string/name_edit_text"
-                    android:inputType="textCapWords"
-                    style="@style/EditorFieldStyle" />
+                    style="@style/EditorFieldStyle"
+                    android:inputType="textCapWords" />
+
+                <TextView
+                    android:id="@+id/genre_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/genre_edit_text"
+                    android:visibility="visible" />
+
 
                 <EditText
                     android:id="@+id/genre_edit_text"
-                    android:hint="@string/genre_edit_text"
+                    style="@style/EditorFieldStyle"
                     android:inputType="textCapWords"
-                    android:lines="5"
-                    style="@style/EditorFieldStyle" />
+                    android:lines="5" />
+
+                <TextView
+                    android:id="@+id/price_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/price_edit_text"
+                    android:visibility="visible" />
 
                 <EditText
                     android:id="@+id/price_edit_text"
-                    android:hint="@string/price_edit_text"
-                    android:inputType="numberDecimal"
-                    style="@style/EditorFieldStyle" />
+
+                    style="@style/EditorFieldStyle"
+                    android:inputType="numberDecimal" />
+
+                <TextView
+                    android:id="@+id/quantity_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/quantity_edit_text"
+                    android:visibility="visible" />
 
                 <EditText
                     android:id="@+id/quantity_edit_text"
-                    android:hint="@string/quantity_edit_text"
-                    android:inputType="number"
-                    style="@style/EditorFieldStyle" />
+
+                    style="@style/EditorFieldStyle"
+                    android:inputType="number" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -59,17 +86,17 @@
 
                     <ImageButton
                         android:id="@+id/quantity_down_image_button"
-                        android:src="@drawable/ic_remove"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:visibility="visible"/>
+                        android:src="@drawable/ic_remove"
+                        android:visibility="visible" />
 
                     <ImageButton
                         android:id="@+id/quantity_up_image_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_add"
-                        android:visibility="visible"/>
+                        android:visibility="visible" />
 
                 </LinearLayout>
 
@@ -83,21 +110,34 @@
             android:orientation="horizontal">
 
             <TextView
-                android:text="@string/supplier_section_label"
-                style="@style/ItemStyle" />
+                style="@style/ItemStyle"
+                android:text="@string/supplier_section_label" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:paddingLeft="4dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:paddingLeft="4dp">
+
+                <TextView
+                    android:id="@+id/supplier_name_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/name_edit_text"
+                    android:visibility="visible" />
 
                 <EditText
                     android:id="@+id/supplier_name_edit_text"
-                    android:hint="@string/name_edit_text"
-                    android:inputType="textCapWords"
-                    style="@style/EditorFieldStyle" />
+                    style="@style/EditorFieldStyle"
+                    android:inputType="textCapWords" />
+
+                <TextView
+                    android:id="@+id/phone_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/phone_edit_text"
+                    android:visibility="visible" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -108,15 +148,14 @@
                         android:id="@+id/supplier_phone_edit_text"
                         style="@style/EditorFieldStyle"
                         android:layout_weight="1"
-                        android:hint="@string/phone_edit_text"
                         android:inputType="phone" />
 
                     <ImageButton
                         android:id="@+id/supplier_phone_image_button"
-                        android:layout_weight="0.2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="fill_horizontal"
+                        android:layout_weight="0.2"
                         android:src="@drawable/ic_call"
                         android:visibility="visible" />
 

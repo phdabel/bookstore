@@ -20,6 +20,7 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,6 +45,7 @@ import butterknife.ButterKnife;
  */
 public class EditorFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String LOG_TAG = EditorFragment.class.getSimpleName();
 
     private static final int CALL_SUPPLIER_PHONE = 0;
 
@@ -108,6 +110,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         if (currentUri == null) viewMode = false;
         else if (getArguments() != null)
             this.viewMode = Boolean.parseBoolean(getArguments().getString("viewMode"));
+        else this.viewMode = true;
 
         View view = inflater.inflate(R.layout.fragment_editor, container, false);
 
@@ -125,18 +128,18 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(Intent.ACTION_DIAL,Uri.parse("tel:" + phoneEditText.getText()));
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phoneEditText.getText()));
                 if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                     String[] permissions = {Manifest.permission.CALL_PHONE};
                     ActivityCompat.requestPermissions(getActivity(), permissions, CALL_SUPPLIER_PHONE);
-                }
-                getContext().startActivity(intent);
+                    phoneImageButton.callOnClick();
+                } else
+                    getContext().startActivity(intent);
             }
         });
 
         InputFilter[] filters = {new CurrencyInputFilter()};
         priceEditText.setFilters(filters);
-
 
         nameEditText.setOnTouchListener(listener);
         genreEditText.setOnTouchListener(listener);
@@ -146,6 +149,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         phoneEditText.setOnTouchListener(listener);
 
         if (viewMode) {
+
             phoneImageButton.setVisibility(View.VISIBLE);
             nameEditText.setEnabled(false);
             genreEditText.setEnabled(false);
@@ -155,7 +159,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
             phoneEditText.setEnabled(false);
             quantityDownButton.setVisibility(View.VISIBLE);
             quantityUpButton.setVisibility(View.VISIBLE);
-        } else if(!viewMode || currentUri == null) {
+        } else if (!viewMode || currentUri == null) {
             phoneImageButton.setVisibility(View.GONE);
             nameEditText.setEnabled(true);
             genreEditText.setEnabled(true);
@@ -173,11 +177,11 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         if (currentUri == null) {
             getActivity().setTitle(getString(R.string.add_book_title));
             getActivity().invalidateOptionsMenu();
-        } else if(currentUri != null && viewMode){
+        } else if (currentUri != null && viewMode) {
             getActivity().setTitle(getString(R.string.detail_book_title));
             LoaderManager loaderManager = getLoaderManager();
             loaderManager.initLoader(EXISTING_ITEM_LOADER, null, this);
-        } else if(currentUri != null && !viewMode){
+        } else if (currentUri != null && !viewMode) {
             getActivity().setTitle(getString(R.string.edit_book_title));
             LoaderManager loaderManager = getLoaderManager();
             loaderManager.initLoader(EXISTING_ITEM_LOADER, null, this);
@@ -194,9 +198,9 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if(!viewMode || currentUri == null){
+        if (!viewMode || currentUri == null) {
             inflater.inflate(R.menu.menu_edit, menu);
-        }else
+        } else
             inflater.inflate(R.menu.menu_view, menu);
         if (currentUri == null) {
             MenuItem menuItem = menu.findItem(R.id.action_delete);
@@ -272,9 +276,9 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Bundle bundle = new Bundle();
         switch (item.getItemId()) {
             case R.id.action_edit:
-                Bundle bundle = new Bundle();
                 bundle.putString("viewMode", "0");
                 EditorFragment fragment = new EditorFragment();
                 fragment.setArguments(bundle);
@@ -284,6 +288,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
                 return true;
             case R.id.action_save:
                 saveItem();
+                bundle.putString("viewMode", "1");
                 getActivity().getIntent().setData(currentUri);
                 getFragmentManager().beginTransaction().
                         replace(R.id.frame_layout, new EditorFragment()).commit();
@@ -298,7 +303,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         return super.onOptionsItemSelected(item);
     }
 
-    private final void viewInventory(){
+    private final void viewInventory() {
         if (mItemHasChanged) showUnsavedChangesDialog(discardButon);
         else {
             getActivity().getIntent().setData(null);
