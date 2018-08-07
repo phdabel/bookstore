@@ -12,6 +12,11 @@ public final class BookStoreContract {
 
     public static final String PATH_BOOKS = "books";
 
+    public static final String PATH_QUANTITY_UP = "quantity/up";
+
+    public static final String PATH_QUANTITY_DOWN = "quantity/down";
+
+
     private BookStoreContract(){}
 
     public static final class ProductEntry implements BaseColumns {
@@ -27,6 +32,8 @@ public final class BookStoreContract {
         public final static String COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER = "supplier_phone_number";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_BOOKS);
+        public static final Uri QUANTITY_URI_UP = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_UP);
+        public static final Uri QUANTITY_URI_DOWN = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_DOWN);
 
         /**
          * MIME types

@@ -3,6 +3,9 @@
     <!-- General -->
     <string name="app_name">Book Store</string>
     <string name="empty_view_title_text">No books in your inventory.</string>
+    <string name="orientation_usage">To add books in your inventory, click in the floating button in this screen.
+        The fields name, price and quantity of books are required.
+    </string>
     <string name="inventory_fragment">Inventory</string>
 
     <!-- form sections -->
@@ -19,13 +22,15 @@
 
     <!-- title -->
     <string name="add_book_title">Add book</string>
-    <string name="edit_book_title">Edit item</string>
+    <string name="edit_book_title">Edit book</string>
+    <string name="detail_book_title">Detail book</string>
 
     <!-- actions -->
-    <string name="sell_action">Sell</string>
+    <string name="sell_action">Sale</string>
     <string name="delete_action">Delete</string>
     <string name="edit_action">Edit</string>
     <string name="save_action">Save</string>
+    <string name="inventory_action">Inventory</string>
     <string name="cancel_action">Cancel</string>
     <string name="discard_action">Discard</string>
     <string name="keep_edit_action">Keep Editing</string>
@@ -40,6 +45,7 @@
     <string name="delete_all_menu">Delete all books</string>
     <string name="delete_all_entries_dialog">Delete all entries??</string>
     <string name="mass_delete_success"> entries deleted</string>
+    <string name="no_items_for_sale_toasty">There is no item for sale anymore.</string>
 
     <!-- exceptions message -->
     <string name="illegal_state_get_type">Unknown URI {uri} with match {match}</string>
@@ -53,7 +59,5 @@
     <!-- alert messages and labels -->
     <string name="delete_book__message_dialog">Delete this book entry?</string>
     <string name="discard_message_dialog">Discard your changes and quit editing?</string>
-
-
 
 </resources>

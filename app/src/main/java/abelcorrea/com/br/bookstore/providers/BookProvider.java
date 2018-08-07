@@ -28,11 +28,17 @@ public class BookProvider extends ContentProvider {
 
     private static final int BOOK_ID = 001;
 
+    private static final int QUANTITY_UP = 111;
+
+    private static final int QUANTITY_DOWN = 110;
+
     private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
         sUriMatcher.addURI(BookStoreContract.CONTENT_AUTHORITY, "books", BOOKS);
         sUriMatcher.addURI(BookStoreContract.CONTENT_AUTHORITY,"books/#", BOOK_ID);
+        sUriMatcher.addURI(BookStoreContract.CONTENT_AUTHORITY,"quantity/up/#",QUANTITY_UP);
+        sUriMatcher.addURI(BookStoreContract.CONTENT_AUTHORITY,"quantity/down/#",QUANTITY_DOWN);
     }
 
 
@@ -125,11 +131,17 @@ public class BookProvider extends ContentProvider {
         int update = -1;
         switch (match){
             case BOOKS:
-                return updateItem(uri, contentValues, selection, selectionArgs);
+                return updateItem(uri, contentValues, selection, selectionArgs, true);
             case BOOK_ID:
                 selection = ProductEntry._ID + "=?";
                 selectionArgs = new String[]{ String.valueOf(ContentUris.parseId(uri))};
-                update = updateItem(uri, contentValues, selection, selectionArgs);
+                update = updateItem(uri, contentValues, selection, selectionArgs, true);
+                break;
+            case QUANTITY_DOWN:
+            case QUANTITY_UP:
+                selection = ProductEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                updateItem(uri, contentValues, selection, selectionArgs, false);
                 break;
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
@@ -138,6 +150,8 @@ public class BookProvider extends ContentProvider {
         return update;
     }
 
+
+
     @Override
     public String getType(Uri uri) {
         final int match = sUriMatcher.match(uri);
@@ -145,6 +159,10 @@ public class BookProvider extends ContentProvider {
             case BOOKS:
                 return ProductEntry.CONTENT_LIST_TYPE;
             case BOOK_ID:
+                return ProductEntry.CONTENT_ITEM_TYPE;
+            case QUANTITY_UP:
+                return ProductEntry.CONTENT_ITEM_TYPE;
+            case QUANTITY_DOWN:
                 return ProductEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalStateException(
@@ -171,8 +189,8 @@ public class BookProvider extends ContentProvider {
         }
     }
 
-    private int updateItem(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs){
-        validate(contentValues);
+    private int updateItem(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs, boolean runValidation){
+        if(runValidation) validate(contentValues);
         if(contentValues.size() == 0) return 0;
         SQLiteDatabase db = this.dbHelper.getWritableDatabase();
         return db.update(ProductEntry.TABLE_NAME, contentValues, selection, selectionArgs);
