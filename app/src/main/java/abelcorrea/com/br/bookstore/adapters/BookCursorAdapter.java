@@ -50,7 +50,7 @@ public class BookCursorAdapter extends CursorAdapter {
         String quantity = String.valueOf(cursor.getInt(quantityColumnIndex));
 
         nameTextView.setText(name);
-        priceTextView.setText("$ ".concat(price));
+        priceTextView.setText(context.getString(R.string.default_currency_symbol).concat(price));
         quantityTextView.setText(quantity);
         sellButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +65,7 @@ public class BookCursorAdapter extends CursorAdapter {
                 int newQuantity = query.getInt(0);
                 Uri sell = ContentUris.withAppendedId(ProductEntry.QUANTITY_DECREASE_URI,bookId);
                 ContentValues value = new ContentValues();
-                if((newQuantity -= Integer.valueOf(quantifier)) >= 0){
+                if(ProductEntry.validateQuantity(newQuantity -= Integer.valueOf(quantifier))){
                     value.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, newQuantity);
                     context.getContentResolver().update(sell, value,null,null);
                     quantityTextView.setText(String.valueOf(newQuantity));

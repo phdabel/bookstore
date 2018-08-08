@@ -4,8 +4,6 @@ import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,12 +21,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import abelcorrea.com.br.bookstore.R;
-import abelcorrea.com.br.bookstore.activities.MainActivity;
 import abelcorrea.com.br.bookstore.activities.SettingsActivity;
 import abelcorrea.com.br.bookstore.adapters.BookCursorAdapter;
 import abelcorrea.com.br.bookstore.data.BookStoreContract.ProductEntry;
@@ -45,14 +41,15 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
     ListView products;
     @BindView(R.id.add_fab)
     FloatingActionButton add_btn;
-    @BindView(R.id.empty_view) View emptyView;
+    @BindView(R.id.empty_view)
+    View emptyView;
 
     public InventoryFragment() {
 
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
@@ -68,33 +65,9 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
         adapter = new BookCursorAdapter(getContext(), null);
         products.setAdapter(adapter);
 
-        products.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        products.setOnItemClickListener(itemListClickListener);
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Uri currentUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
-                getActivity().getIntent().setData(currentUri);
-
-                EditorFragment editor = new EditorFragment();
-
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.frame_layout, editor).commit();
-
-            }
-        });
-
-        add_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // pass extras of the intent
-                EditorFragment editor = new EditorFragment();
-                getActivity().getIntent().setData(null);
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.frame_layout, editor).commit();
-
-            }
-        });
+        add_btn.setOnClickListener(addBookButtonListener);
 
         LoaderManager loaderManager = getLoaderManager();
 
@@ -102,6 +75,41 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
         return view;
 
     }
+
+    /**
+     *  Click listener for items of the inventory list.
+     *  Sets an URI based in the ID of the clicked item as intent data.
+     *  Replace the inventory fragment to the editor fragment.
+     */
+    private final AdapterView.OnItemClickListener itemListClickListener =
+            new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Uri currentUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
+                    getActivity().getIntent().setData(currentUri);
+
+                    EditorFragment editor = new EditorFragment();
+
+                    getFragmentManager().beginTransaction()
+                            .replace(R.id.frame_layout, editor).commit();
+
+                }
+            };
+
+    /**
+     * Replace the inventory fragment to editor fragment in the frame_layout.
+     * Variable used to set the {@link #add_btn} onClickListener.
+     */
+    private final View.OnClickListener addBookButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            // pass extras of the intent
+            EditorFragment editor = new EditorFragment();
+            getActivity().getIntent().setData(null);
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frame_layout, editor).commit();
+        }
+    };
 
     @NonNull
     @Override
@@ -133,12 +141,11 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_inventory, menu);
-        ((MainActivity)getActivity()).menuItemsColor(menu, Color.WHITE);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_delete_all_entries:
                 showDeleteAllConfirmationDialog();
                 return true;
@@ -150,11 +157,16 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Creates the confirmation dialog of the delete all action in the option menu.
+     * If confirmed all items are deleted and the loader is restarted,
+     * otherwise dismiss the dialog.
+     */
     private void showDeleteAllConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
         builder.setMessage(R.string.delete_all_entries_dialog);
-        builder.setPositiveButton(R.string.delete_action, new DialogInterface.OnClickListener(){
+        builder.setPositiveButton(R.string.delete_action, new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int id) {
@@ -165,21 +177,26 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
         builder.setNegativeButton(R.string.cancel_action, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(dialog != null) dialog.dismiss();
+                if (dialog != null) dialog.dismiss();
 
             }
         });
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
-
     }
 
-    public int deleteAllItems(){
+    /**
+     * Delete all rows in the database.
+     * Returns the amount of rows deleted and shows a message.
+     *
+     * @return int
+     */
+    private int deleteAllItems() {
         int deletedRows = getContext().getContentResolver().delete(ProductEntry.CONTENT_URI, null, null);
-        if(deletedRows == -1){
+        if (deletedRows == -1) {
             Toast.makeText(getContext(), getString(R.string.book_delete_failed_toasty), Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(getContext(), String.valueOf(deletedRows) + getString(R.string.mass_delete_success), Toast.LENGTH_SHORT).show();
         }
         return deletedRows;

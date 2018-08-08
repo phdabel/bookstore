@@ -23,7 +23,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -65,14 +64,22 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
     @BindView(R.id.quantity_edit_text)
     EditText quantityEditText;
     @Nullable
-    @BindView(R.id.supplier_name_edit_text) EditText supplierNameEditText;
+    @BindView(R.id.supplier_name_edit_text)
+    EditText supplierNameEditText;
     @Nullable
-    @BindView(R.id.supplier_phone_edit_text) EditText supplierPhoneEditText;
+    @BindView(R.id.supplier_phone_edit_text)
+    EditText supplierPhoneEditText;
 
-    @BindView(R.id.quantity_up_image_button) ImageButton qtyUImageButton;
-    @BindView(R.id.quantity_down_image_button) ImageButton qtyDImageButton;
+    @BindView(R.id.quantity_up_image_button)
+    ImageButton qtyUImageButton;
+    @BindView(R.id.quantity_down_image_button)
+    ImageButton qtyDImageButton;
 
     private final int EXISTING_ITEM_LOADER = 0;
+
+    private final int VIEW_MODE = 1;
+
+    private final int EDIT_MODE = 0;
 
     protected boolean mItemHasChanged = false;
 
@@ -84,23 +91,11 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
     }
 
-
     private final View.OnTouchListener listener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motioEvent) {
             mItemHasChanged = true;
             return false;
-        }
-    };
-
-    private DialogInterface.OnClickListener discardButon = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            mItemHasChanged = false;
-            getActivity().getIntent().setData(null);
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame_layout, new InventoryFragment())
-                    .commit();
         }
     };
 
@@ -119,7 +114,9 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         currentUri = intent.getData();
         if (currentUri == null) viewMode = false;
         else if (getArguments() != null)
-            this.viewMode = Boolean.parseBoolean(getArguments().getString("viewMode"));
+            this.viewMode = Boolean.parseBoolean(
+                    getArguments().getString(getActivity().getString(R.string.editor_mode_key))
+            );
         else this.viewMode = true;
 
         View view = inflater.inflate(R.layout.fragment_editor, container, false);
@@ -144,16 +141,16 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
                         getContext().getString(R.string.settings_quantifier_default));
 
                 long bookId = ContentUris.parseId(currentUri);
-                Uri queryUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI,bookId);
+                Uri queryUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, bookId);
                 Cursor query = getContext().getContentResolver()
-                        .query(queryUri,new String[]{ProductEntry.COLUMN_PRODUCT_QUANTITY},null,null,null);
+                        .query(queryUri, new String[]{ProductEntry.COLUMN_PRODUCT_QUANTITY}, null, null, null);
                 query.moveToFirst();
                 int newQuantity = query.getInt(0);
-                Uri buy = ContentUris.withAppendedId(ProductEntry.QUANTITY_INCREASE_URI,bookId);
+                Uri buy = ContentUris.withAppendedId(ProductEntry.QUANTITY_INCREASE_URI, bookId);
                 ContentValues value = new ContentValues();
                 newQuantity += Integer.valueOf(quantifier);
                 value.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, newQuantity);
-                getContext().getContentResolver().update(buy, value,null,null);
+                getContext().getContentResolver().update(buy, value, null, null);
                 quantityEditText.setText(String.valueOf(newQuantity));
             }
         });
@@ -168,18 +165,18 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
                         getContext().getString(R.string.settings_quantifier_default));
 
                 long bookId = ContentUris.parseId(currentUri);
-                Uri queryUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI,bookId);
+                Uri queryUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, bookId);
                 Cursor query = getContext().getContentResolver()
-                        .query(queryUri,new String[]{ProductEntry.COLUMN_PRODUCT_QUANTITY},null,null,null);
+                        .query(queryUri, new String[]{ProductEntry.COLUMN_PRODUCT_QUANTITY}, null, null, null);
                 query.moveToFirst();
                 int newQuantity = query.getInt(0);
-                Uri sell = ContentUris.withAppendedId(ProductEntry.QUANTITY_DECREASE_URI,bookId);
+                Uri sell = ContentUris.withAppendedId(ProductEntry.QUANTITY_DECREASE_URI, bookId);
                 ContentValues value = new ContentValues();
-                if((newQuantity -= Integer.valueOf(quantifier)) >= 0){
+                if ((newQuantity -= Integer.valueOf(quantifier)) >= 0) {
                     value.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, newQuantity);
-                    getContext().getContentResolver().update(sell, value,null,null);
+                    getContext().getContentResolver().update(sell, value, null, null);
                     quantityEditText.setText(String.valueOf(newQuantity));
-                }else
+                } else
                     Toast.makeText(getContext(), R.string.no_items_for_sale_toasty, Toast.LENGTH_SHORT).show();
             }
         });
@@ -230,7 +227,6 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         ButterKnife.bind(this, view);
-
 
         if (currentUri == null) {
             getActivity().setTitle(getString(R.string.add_book_title));
@@ -303,7 +299,6 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
             int supplierNameIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME);
             int supplierPhoneIndex = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
 
-
             String name = cursor.getString(nameIndex);
             String genre = cursor.getString(genreIndex);
             Double price = cursor.getDouble(priceIndex);
@@ -324,14 +319,12 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-
         nameEditText.setText(null);
         genreEditText.setText(null);
         priceEditText.setText(null);
         quantityEditText.setText(null);
         supplierNameEditText.setText(null);
         supplierPhoneEditText.setText(null);
-
     }
 
     @Override
@@ -339,7 +332,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         Bundle bundle = new Bundle();
         switch (item.getItemId()) {
             case R.id.action_edit:
-                bundle.putString("viewMode", "0");
+                bundle.putString(getActivity().getString(R.string.editor_mode_key), String.valueOf(EDIT_MODE));
                 EditorFragment fragment = new EditorFragment();
                 fragment.setArguments(bundle);
                 getFragmentManager().beginTransaction()
@@ -359,6 +352,10 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Replace to the inventory fragment.
+     * Shows unsaved changes dialog if some field was clicked.
+     */
     private final void viewInventory() {
         if (mItemHasChanged) showUnsavedChangesDialog(discardButon);
         else {
@@ -369,6 +366,14 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         }
     }
 
+    /**
+     *  Insert or update an item.
+     *  If currentUri is null then a new book is inserted, otherwise a book
+     *  is updated given the URI ID.
+     *
+     *  This method perform the validation of the keys, saves and replace to the editor
+     *  fragment in the {@link #VIEW_MODE}.
+     */
     private void saveItem() {
 
         String nameString = nameEditText.getText().toString().trim();
@@ -378,33 +383,25 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         String supplierNameString = supplierNameEditText.getText().toString().trim();
         String supplierPhoneString = supplierPhoneEditText.getText().toString().trim();
 
-
         /**
          *  validation fields
          */
         if (viewMode == false) {
-
-            String attribute = null;
-            if (TextUtils.isEmpty(nameString)) {
-                attribute = "Name";
-            } else if (TextUtils.isEmpty(priceString)) {
-                attribute = "Price";
-            } else if (TextUtils.isEmpty(quantityString)) {
-                attribute = "Quantity";
-            }
-            if (attribute != null) {
-                Toast.makeText(getContext(), getContext().getString(R.string.valid_attribute_message).replace("{attr}", attribute), Toast.LENGTH_SHORT).show();
+            String invalidAttr = ProductEntry.getInvalidRequiredFields(nameString, priceString, quantityString);
+            if (invalidAttr != null) {
+                Toast.makeText(getContext(), getContext().getString(R.string.valid_attribute_message)
+                        .replace("{attr}", invalidAttr), Toast.LENGTH_SHORT)
+                        .show();
                 return;
             }
         }
 
-        ContentValues values = new ContentValues();
-        values.put(ProductEntry.COLUMN_PRODUCT_NAME, nameString);
-        values.put(ProductEntry.COLUMN_PRODUCT_GENRE, genreString);
-        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, Double.valueOf(priceString));
-        values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, Integer.valueOf(quantityString));
-        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, supplierNameString);
-        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, supplierPhoneString);
+        ContentValues values = getContentValues(nameString,
+                genreString,
+                priceString,
+                quantityString,
+                supplierNameString,
+                supplierPhoneString);
 
         if (currentUri == null) {
             Uri newUri = getContext().getContentResolver().insert(ProductEntry.CONTENT_URI, values);
@@ -414,10 +411,8 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
             } else {
                 Toast.makeText(getContext(), R.string.saved_book_toasty, Toast.LENGTH_SHORT).show();
             }
-
         } else {
             int updatedRows = getContext().getContentResolver().update(currentUri, values, null, null);
-
             if (updatedRows == 0) {
                 Toast.makeText(getContext(), R.string.error_updating_toasty, Toast.LENGTH_SHORT).show();
             } else {
@@ -425,12 +420,45 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
         Bundle bundle = new Bundle();
-        bundle.putString("viewMode", "1");
+        bundle.putString(getActivity().getString(R.string.editor_mode_key), String.valueOf(VIEW_MODE));
         getActivity().getIntent().setData(currentUri);
         getFragmentManager().beginTransaction().
                 replace(R.id.frame_layout, new EditorFragment()).commit();
     }
 
+    /**
+     * Gets the String data and returns a ContentValues object to be used with
+     * the content resolver.
+     *
+     * @param name     name of the book
+     * @param genre    genre of the book
+     * @param price    price of the book
+     * @param quantity quantities of books
+     * @param supplier supplier name
+     * @param phone    supplier phone
+     * @return ContentValue object
+     */
+    private ContentValues getContentValues(String name,
+                                           String genre,
+                                           String price,
+                                           String quantity,
+                                           String supplier,
+                                           String phone) {
+        ContentValues values = new ContentValues();
+        values.put(ProductEntry.COLUMN_PRODUCT_NAME, name);
+        values.put(ProductEntry.COLUMN_PRODUCT_GENRE, genre);
+        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, Double.valueOf(price));
+        values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, Integer.valueOf(quantity));
+        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, supplier);
+        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, phone);
+        return values;
+    }
+
+    /**
+     * Action to delete the current item.
+     * If the currentUri is null then, there is no item to delete.
+     * Otherwise, delete the row and shows a message.
+     */
     private void deleteItem() {
 
         if (currentUri == null) return;
@@ -443,6 +471,30 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
     }
 
+    /**
+     * Dialog click listener that contains the behavior when
+     * discarding unsaved changes.
+     * In this case, on discard sets mItemHasChanged to false, sets the intent data
+     * to null and replace to the inventory fragment.
+     */
+    private DialogInterface.OnClickListener discardButon = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            //mItemHasChanged = false;
+            getActivity().getIntent().setData(null);
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frame_layout, new InventoryFragment())
+                    .commit();
+        }
+    };
+
+    /**
+     * Show unsaved changes dialog.
+     * When keep editing dismiss the dialog.
+     * On discard follows the behavior of the parameter discardButtonClickListener
+     *
+     * @param discardButtonClickListener defines the behavior when discard unsaved changes
+     */
     private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setMessage(R.string.discard_message_dialog);
@@ -461,6 +513,12 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         alertDialog.show();
     }
 
+    /**
+     * Shows the delete confirmation dialog.
+     * On confirmation delete the item, sets the intent data to null
+     * and replace the editor fragment to inventory fragment.
+     * On cancel dismiss the dialog.
+     */
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 

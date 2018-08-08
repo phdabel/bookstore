@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         inventory.setArguments(getIntent().getExtras());
         // add the fragment to the frame layout
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.frame_layout, inventory).commit();
+                .add(R.id.frame_layout, new InventoryFragment()).commit();
 
     }
 

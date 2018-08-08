@@ -19,7 +19,6 @@
     <string name="quantity_edit_text">Quantity</string>
     <string name="phone_edit_text">Phone</string>
 
-
     <!-- title -->
     <string name="add_book_title">Add book</string>
     <string name="edit_book_title">Edit book</string>
@@ -46,7 +45,7 @@
     <string name="delete_all_entries_dialog">Delete all entries??</string>
     <string name="mass_delete_success"> entries deleted</string>
     <string name="no_items_for_sale_toasty">There is no item for sale anymore.</string>
-    <string name="valid_attribute_message">Please enter a valid {attr}.</string>
+    <string name="valid_attribute_message">Please enter a valid value for the attribute {attr}.</string>
 
     <!-- exceptions message -->
     <string name="illegal_state_get_type">Unknown URI {uri} with match {match}</string>
@@ -65,6 +64,8 @@
 
     <!-- settings -->
     <string name="settings_quantifier_key">quantifier</string>
+    <string name="editor_mode_key">viewMode</string>
     <string name="settings_quantifier_default">1</string>
+    <string name="default_currency_symbol">$</string>
 
 </resources>

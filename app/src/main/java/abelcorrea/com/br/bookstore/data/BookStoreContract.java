@@ -3,6 +3,10 @@ package abelcorrea.com.br.bookstore.data;
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
+import android.widget.Toast;
+
+import abelcorrea.com.br.bookstore.R;
 
 public final class BookStoreContract {
 
@@ -35,6 +39,8 @@ public final class BookStoreContract {
         public static final Uri QUANTITY_INCREASE_URI = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_UP);
         public static final Uri QUANTITY_DECREASE_URI = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_DOWN);
 
+        public static final int MIN_QUANTITY = 0;
+
         /**
          * MIME types
          */
@@ -44,11 +50,38 @@ public final class BookStoreContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_BOOKS;
 
-        public static boolean validQuantity(int quantity){
-            if(quantity < 0) return false;
-            return true;
+        /**
+         * If the new value for the quantity field is valid returns null.
+         * Otherwise returns false.
+         *
+         * @param newValue
+         * @return
+         */
+        public static boolean validateQuantity(int newValue){
+            if(newValue >= ProductEntry.MIN_QUANTITY) return true;
+            return false;
         }
 
+        /**
+         * Validate if the required fields are filled.
+         * Returns null if all required fields are filled, otherwise returns
+         * the name of the column.
+         *
+         * @param name name of the book
+         * @param price price of the book
+         * @param quantity quantity of books
+         * @return
+         */
+        public static String getInvalidRequiredFields(String name, String price, String quantity){
+            if (TextUtils.isEmpty(name)) {
+                return COLUMN_PRODUCT_NAME;
+            } else if (TextUtils.isEmpty(price)) {
+                return COLUMN_PRODUCT_PRICE;
+            } else if (TextUtils.isEmpty(quantity)) {
+                return COLUMN_PRODUCT_QUANTITY;
+            }
+            return null;
+        }
 
     }
 
