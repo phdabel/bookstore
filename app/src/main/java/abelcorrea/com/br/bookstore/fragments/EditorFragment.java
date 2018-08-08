@@ -2,16 +2,20 @@ package abelcorrea.com.br.bookstore.fragments;
 
 
 import android.Manifest;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -20,7 +24,6 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,18 +52,25 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final int CALL_SUPPLIER_PHONE = 0;
 
+    @NonNull
     @BindView(R.id.name_edit_text)
     EditText nameEditText;
+    @Nullable
     @BindView(R.id.genre_edit_text)
     EditText genreEditText;
+    @NonNull
     @BindView(R.id.price_edit_text)
     EditText priceEditText;
+    @NonNull
     @BindView(R.id.quantity_edit_text)
     EditText quantityEditText;
-    @BindView(R.id.supplier_name_edit_text)
-    EditText supplierNameEditText;
-    @BindView(R.id.supplier_phone_edit_text)
-    EditText supplierPhoneEditText;
+    @Nullable
+    @BindView(R.id.supplier_name_edit_text) EditText supplierNameEditText;
+    @Nullable
+    @BindView(R.id.supplier_phone_edit_text) EditText supplierPhoneEditText;
+
+    @BindView(R.id.quantity_up_image_button) ImageButton qtyUImageButton;
+    @BindView(R.id.quantity_down_image_button) ImageButton qtyDImageButton;
 
     private final int EXISTING_ITEM_LOADER = 0;
 
@@ -117,12 +127,62 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         EditText nameEditText = view.findViewById(R.id.name_edit_text);
         EditText genreEditText = view.findViewById(R.id.genre_edit_text);
         EditText priceEditText = view.findViewById(R.id.price_edit_text);
-        EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
+        final EditText quantityEditText = view.findViewById(R.id.quantity_edit_text);
         EditText supplierEditText = view.findViewById(R.id.supplier_name_edit_text);
         final EditText phoneEditText = view.findViewById(R.id.supplier_phone_edit_text);
-        final ImageButton phoneImageButton = view.findViewById(R.id.supplier_phone_image_button);
+        final FloatingActionButton phoneImageButton = view.findViewById(R.id.supplier_phone_fab);
         final ImageButton quantityUpButton = view.findViewById(R.id.quantity_up_image_button);
         final ImageButton quantityDownButton = view.findViewById(R.id.quantity_down_image_button);
+
+        quantityUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String quantifier = sharedPrefs.getString(
+                        getContext().getString(R.string.settings_quantifier_key),
+                        getContext().getString(R.string.settings_quantifier_default));
+
+                long bookId = ContentUris.parseId(currentUri);
+                Uri queryUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI,bookId);
+                Cursor query = getContext().getContentResolver()
+                        .query(queryUri,new String[]{ProductEntry.COLUMN_PRODUCT_QUANTITY},null,null,null);
+                query.moveToFirst();
+                int newQuantity = query.getInt(0);
+                Uri buy = ContentUris.withAppendedId(ProductEntry.QUANTITY_INCREASE_URI,bookId);
+                ContentValues value = new ContentValues();
+                newQuantity += Integer.valueOf(quantifier);
+                value.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, newQuantity);
+                getContext().getContentResolver().update(buy, value,null,null);
+                quantityEditText.setText(String.valueOf(newQuantity));
+            }
+        });
+
+        quantityDownButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String quantifier = sharedPrefs.getString(
+                        getContext().getString(R.string.settings_quantifier_key),
+                        getContext().getString(R.string.settings_quantifier_default));
+
+                long bookId = ContentUris.parseId(currentUri);
+                Uri queryUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI,bookId);
+                Cursor query = getContext().getContentResolver()
+                        .query(queryUri,new String[]{ProductEntry.COLUMN_PRODUCT_QUANTITY},null,null,null);
+                query.moveToFirst();
+                int newQuantity = query.getInt(0);
+                Uri sell = ContentUris.withAppendedId(ProductEntry.QUANTITY_DECREASE_URI,bookId);
+                ContentValues value = new ContentValues();
+                if((newQuantity -= Integer.valueOf(quantifier)) >= 0){
+                    value.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, newQuantity);
+                    getContext().getContentResolver().update(sell, value,null,null);
+                    quantityEditText.setText(String.valueOf(newQuantity));
+                }else
+                    Toast.makeText(getContext(), R.string.no_items_for_sale_toasty, Toast.LENGTH_SHORT).show();
+            }
+        });
 
         phoneImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,8 +198,7 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
             }
         });
 
-        InputFilter[] filters = {new CurrencyInputFilter()};
-        priceEditText.setFilters(filters);
+        priceEditText.setFilters(new InputFilter[]{new CurrencyInputFilter()});
 
         nameEditText.setOnTouchListener(listener);
         genreEditText.setOnTouchListener(listener);
@@ -149,7 +208,6 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         phoneEditText.setOnTouchListener(listener);
 
         if (viewMode) {
-
             phoneImageButton.setVisibility(View.VISIBLE);
             nameEditText.setEnabled(false);
             genreEditText.setEnabled(false);
@@ -266,12 +324,14 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+
         nameEditText.setText(null);
         genreEditText.setText(null);
         priceEditText.setText(null);
         quantityEditText.setText(null);
         supplierNameEditText.setText(null);
         supplierPhoneEditText.setText(null);
+
     }
 
     @Override
@@ -288,10 +348,6 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
                 return true;
             case R.id.action_save:
                 saveItem();
-                bundle.putString("viewMode", "1");
-                getActivity().getIntent().setData(currentUri);
-                getFragmentManager().beginTransaction().
-                        replace(R.id.frame_layout, new EditorFragment()).commit();
                 return true;
             case R.id.action_delete:
                 showDeleteConfirmationDialog();
@@ -322,9 +378,25 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
         String supplierNameString = supplierNameEditText.getText().toString().trim();
         String supplierPhoneString = supplierPhoneEditText.getText().toString().trim();
 
-        if (currentUri == null && TextUtils.isEmpty(nameString) && TextUtils.isEmpty(priceString) &&
-                TextUtils.isEmpty(quantityString) && TextUtils.isEmpty(supplierNameString) &&
-                TextUtils.isEmpty(supplierPhoneString)) return;
+
+        /**
+         *  validation fields
+         */
+        if (viewMode == false) {
+
+            String attribute = null;
+            if (TextUtils.isEmpty(nameString)) {
+                attribute = "Name";
+            } else if (TextUtils.isEmpty(priceString)) {
+                attribute = "Price";
+            } else if (TextUtils.isEmpty(quantityString)) {
+                attribute = "Quantity";
+            }
+            if (attribute != null) {
+                Toast.makeText(getContext(), getContext().getString(R.string.valid_attribute_message).replace("{attr}", attribute), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
 
         ContentValues values = new ContentValues();
         values.put(ProductEntry.COLUMN_PRODUCT_NAME, nameString);
@@ -352,6 +424,11 @@ public class EditorFragment extends Fragment implements LoaderManager.LoaderCall
                 Toast.makeText(getContext(), R.string.book_updated_toasty, Toast.LENGTH_SHORT).show();
             }
         }
+        Bundle bundle = new Bundle();
+        bundle.putString("viewMode", "1");
+        getActivity().getIntent().setData(currentUri);
+        getFragmentManager().beginTransaction().
+                replace(R.id.frame_layout, new EditorFragment()).commit();
     }
 
     private void deleteItem() {

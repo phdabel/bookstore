@@ -5,6 +5,10 @@
     tools:context=".activities.MainActivity">
 
     <item
+        android:id="@+id/action_settings"
+        android:title="@string/preference_settings_label" />
+
+    <item
         android:id="@+id/action_delete_all_entries"
         android:title="@string/delete_all_menu"
         app:showAsAction="never" />

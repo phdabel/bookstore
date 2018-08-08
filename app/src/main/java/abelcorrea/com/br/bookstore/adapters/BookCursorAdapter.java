@@ -3,8 +3,10 @@ package abelcorrea.com.br.bookstore.adapters;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import abelcorrea.com.br.bookstore.R;
-import abelcorrea.com.br.bookstore.activities.MainActivity;
 import abelcorrea.com.br.bookstore.data.BookStoreContract.ProductEntry;
 
 public class BookCursorAdapter extends CursorAdapter {
@@ -49,19 +50,22 @@ public class BookCursorAdapter extends CursorAdapter {
         String quantity = String.valueOf(cursor.getInt(quantityColumnIndex));
 
         nameTextView.setText(name);
-        priceTextView.setText(price);
+        priceTextView.setText("$ ".concat(price));
         quantityTextView.setText(quantity);
         sellButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+                String quantifier = sharedPrefs.getString(context.getString(R.string.settings_quantifier_key),context.getString(R.string.settings_quantifier_default));
+
                 Uri queryUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI,bookId);
                 Cursor query = context.getContentResolver().query(queryUri,new String[]{ProductEntry.COLUMN_PRODUCT_QUANTITY},null,null,null);
                 query.moveToFirst();
                 int newQuantity = query.getInt(0);
-                Uri sell = ContentUris.withAppendedId(ProductEntry.QUANTITY_URI_DOWN,bookId);
+                Uri sell = ContentUris.withAppendedId(ProductEntry.QUANTITY_DECREASE_URI,bookId);
                 ContentValues value = new ContentValues();
-                if(newQuantity > 0){
-                    newQuantity--;
+                if((newQuantity -= Integer.valueOf(quantifier)) >= 0){
                     value.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, newQuantity);
                     context.getContentResolver().update(sell, value,null,null);
                     quantityTextView.setText(String.valueOf(newQuantity));

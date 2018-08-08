@@ -75,7 +75,6 @@
 
                 <EditText
                     android:id="@+id/quantity_edit_text"
-
                     style="@style/EditorFieldStyle"
                     android:inputType="number" />
 
@@ -139,35 +138,26 @@
                     android:text="@string/phone_edit_text"
                     android:visibility="visible" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <EditText
+                    android:id="@+id/supplier_phone_edit_text"
+                    style="@style/EditorFieldStyle"
+                    android:layout_weight="1"
+                    android:inputType="phone" />
+
+                <android.support.design.widget.FloatingActionButton
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <EditText
-                        android:id="@+id/supplier_phone_edit_text"
-                        style="@style/EditorFieldStyle"
-                        android:layout_weight="1"
-                        android:inputType="phone" />
-
-                    <ImageButton
-                        android:id="@+id/supplier_phone_image_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="fill_horizontal"
-                        android:layout_weight="0.2"
-                        android:src="@drawable/ic_call"
-                        android:visibility="visible" />
-
-
-                </LinearLayout>
-
+                    android:id="@+id/supplier_phone_fab"
+                    android:src="@drawable/ic_call"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="@dimen/fab_margin"/>
 
             </LinearLayout>
 
         </LinearLayout>
 
-
     </LinearLayout>
+
 
 </FrameLayout>

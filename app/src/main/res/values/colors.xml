@@ -3,4 +3,16 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="primary">#ff8a65</color>
+    <color name="primaryLight">#ffbb93</color>
+    <color name="primaryDark">#c75b39</color>
+
+    <color name="primaryFontColor">#000000</color>
+
+    <color name="secondary">#3f50b5</color>
+    <color name="secondaryLight">#757ce8</color>
+    <color name="secondaryDark">#002884</color>
+
+    <color name="secondaryFontColor">#ffffff</color>
 </resources>

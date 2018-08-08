@@ -2,8 +2,10 @@ package abelcorrea.com.br.bookstore.fragments;
 
 import android.content.ContentUris;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,6 +29,7 @@ import android.widget.Toast;
 
 import abelcorrea.com.br.bookstore.R;
 import abelcorrea.com.br.bookstore.activities.MainActivity;
+import abelcorrea.com.br.bookstore.activities.SettingsActivity;
 import abelcorrea.com.br.bookstore.adapters.BookCursorAdapter;
 import abelcorrea.com.br.bookstore.data.BookStoreContract.ProductEntry;
 import butterknife.BindView;
@@ -138,6 +141,10 @@ public class InventoryFragment extends Fragment implements LoaderManager.LoaderC
         switch(item.getItemId()){
             case R.id.action_delete_all_entries:
                 showDeleteAllConfirmationDialog();
+                return true;
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(settingsIntent);
                 return true;
         }
         return super.onOptionsItemSelected(item);

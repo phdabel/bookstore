@@ -32,8 +32,8 @@ public final class BookStoreContract {
         public final static String COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER = "supplier_phone_number";
 
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_BOOKS);
-        public static final Uri QUANTITY_URI_UP = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_UP);
-        public static final Uri QUANTITY_URI_DOWN = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_DOWN);
+        public static final Uri QUANTITY_INCREASE_URI = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_UP);
+        public static final Uri QUANTITY_DECREASE_URI = Uri.withAppendedPath(BASE_CONTENT_UTI, PATH_QUANTITY_DOWN);
 
         /**
          * MIME types
